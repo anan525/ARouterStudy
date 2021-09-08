@@ -1,0 +1,4 @@
+include ':common'
+include ':ARouter'
+include ':app'
+rootProject.name = "KotlinARouterProject"
