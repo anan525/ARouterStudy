@@ -1,9 +1,7 @@
 package com.dndc.kotlinarouterproject
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.dndc.arouter.ARouter
-
+import androidx.appcompat.app.AppCompatActivity
 
 class TestActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

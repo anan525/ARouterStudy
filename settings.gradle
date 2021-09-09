@@ -1,4 +1,4 @@
-include ':common'
+include ':ARouter-Utils'
 include ':ARouter'
 include ':app'
 rootProject.name = "KotlinARouterProject"
