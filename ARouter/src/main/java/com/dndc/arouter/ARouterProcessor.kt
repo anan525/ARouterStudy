@@ -65,6 +65,8 @@ class ARouterProcessor : AbstractProcessor() {
                     val routerType = element.asType()
                     val activityType =
                         elementUtils?.getTypeElement(RouterConstants.ACTIVITYTYPE)?.asType()
+                    val callType =
+                        elementUtils?.getTypeElement(RouterConstants.CALLTYPE)?.asType()
 
                     messager?.printMessage(
                         Diagnostic.Kind.NOTE,
@@ -77,6 +79,9 @@ class ARouterProcessor : AbstractProcessor() {
                     when {
                         typeUtils!!.isSubtype(routerType, activityType) -> {
                             type = RouterBean.TYPE.ACITIVITY
+                        }
+                        typeUtils!!.isSubtype(routerType, callType) -> {
+                            type = RouterBean.TYPE.CALL
                         }
                         else -> {
                             throw IllegalStateException("目前不支持注解在该类上")
@@ -113,7 +118,7 @@ class ARouterProcessor : AbstractProcessor() {
                 "%N.put(\"${routerBean.path}\",%T().build(\"${routerBean.path}\",${routerBean.clazzPath}::class.java,%T.%L))",
                 "hashMap",
                 RouterBean::class,
-                RouterBean.TYPE.ACITIVITY::class,
+                RouterBean.TYPE::class,
                 routerBean.type
             )
         }

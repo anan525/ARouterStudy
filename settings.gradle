@@ -1,3 +1,6 @@
+include ':test2'
+include ':base'
+include ':test'
 include ':ARouter-Utils'
 include ':ARouter'
 include ':app'

@@ -12,3 +12,9 @@
 /captures
 .externalNativeBuild
 .cxx
+/test/
+/test2/
+/base/
+/test2/
+/test/
+/base/

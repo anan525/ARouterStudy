@@ -21,7 +21,7 @@ class RouterBean {
     }
 
     enum class TYPE {
-        ACITIVITY
+        ACITIVITY, CALL
     }
 
 }

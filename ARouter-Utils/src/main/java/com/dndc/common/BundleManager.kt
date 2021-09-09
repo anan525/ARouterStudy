@@ -38,8 +38,8 @@ class BundleManager internal constructor() {
         return this
     }
 
-    fun navigation(context: Context) {
-        ARouterManager.instance.navigation(context, bundle)
+    fun navigation(context: Context): Any? {
+     return   ARouterManager.instance.navigation(context, bundle)
     }
 
     fun navigationforResult(activity: Activity) {

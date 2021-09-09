@@ -28,7 +28,7 @@ class ARouterManager private constructor() {
                     Class.forName(className).newInstance() as PathLoadListener
                 val routerBeanHashMap =
                     pathLoadListener.loadPath()
-                if ( routerBeanHashMap.size > 0) {
+                if (routerBeanHashMap.size > 0) {
                     routerBean = routerBeanHashMap[path]
                     if (routerBean != null) {
                         routerBeanLruCache.put(path, routerBean)
@@ -57,11 +57,20 @@ class ARouterManager private constructor() {
         check(path.lastIndexOf("/") != 0) { "传入的path必须是/module（名称）/path（类名）..." }
     }
 
-    fun navigation(context: Context, bundle: Bundle?) {
+    fun navigation(context: Context, bundle: Bundle?): Any? {
         if (routerBean != null) {
-            val intent = Intent(context, routerBean!!.clazz).putExtras(bundle!!)
-            context.startActivity(intent)
+            when (routerBean!!.type) {
+                RouterBean.TYPE.ACITIVITY -> {
+                    val intent = Intent(context, routerBean!!.clazz).putExtras(bundle!!)
+                    context.startActivity(intent)
+                    return null
+                }
+                RouterBean.TYPE.CALL -> {
+                    return routerBean!!.clazz.newInstance()
+                }
+            }
         }
+        return null
     }
 
     fun navigation(activity: Activity, bundle: Bundle?, code: Int) {

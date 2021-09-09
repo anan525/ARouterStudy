@@ -22,6 +22,11 @@ object RouterConstants {
     const val ACTIVITYTYPE = "android.app.Activity"
 
     /**
+     * call类型的包名
+     */
+    const val CALLTYPE = "com.dndc.arouter.CallListener"
+
+    /**
      * context的包名
      */
     const val CONTEXTTYPE = "android.content.Context"
@@ -30,10 +35,5 @@ object RouterConstants {
      *生成文件的前缀
      */
     const val buildFileForPathName = "ARouter_Path_"
-
-    /**
-     * 注解包名
-     */
-    const val managerAnnotationPath = "com.dndc.arouter.Manager"
 
 }
