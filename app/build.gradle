@@ -52,5 +52,4 @@ dependencies {
     kapt project(path: ':ARouter')
     implementation project(path: ':ARouter')
 
-//    embed project(path: ':ARouter', configuration: 'default')
 }
