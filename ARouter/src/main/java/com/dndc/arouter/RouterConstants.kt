@@ -55,7 +55,7 @@ object RouterConstants {
     const val intType="Kotlin.Int"
 
     /**
-     * kotlin的String
+     * java的String
      */
     const val stringType="java.lang.String"
 }

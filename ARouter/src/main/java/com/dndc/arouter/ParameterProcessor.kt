@@ -1,6 +1,7 @@
 package com.dndc.arouter
 
 import com.google.auto.service.AutoService
+import com.google.gson.Gson
 import com.squareup.kotlinpoet.*
 import javax.annotation.processing.*
 import javax.lang.model.SourceVersion
@@ -10,6 +11,8 @@ import javax.lang.model.type.TypeKind
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 import javax.tools.Diagnostic
+import kotlin.reflect.jvm.internal.impl.builtins.jvm.JavaToKotlinClassMap
+import kotlin.reflect.jvm.internal.impl.name.FqName
 
 
 @AutoService(Processor::class)
@@ -103,11 +106,8 @@ class ParameterProcessor : AbstractProcessor() {
 
         elements.forEachIndexed { index, element ->
             val parameter = element.getAnnotation(Parameter::class.java)
-
-            messager?.printMessage(
-                Diagnostic.Kind.NOTE,
-                "   type=" + element.asType().toString() + "     simpleName+" + element.simpleName
-            )
+            var clazzName = element.asType().toString()
+            val name = parameter.name
             when {
                 element.asType().kind.ordinal == TypeKind.INT.ordinal -> {
                     funSpec.addStatement(
@@ -119,7 +119,7 @@ class ParameterProcessor : AbstractProcessor() {
                         element.simpleName
                     )
                 }
-                element.asType().toString().equals(RouterConstants.stringType, true) -> {
+                clazzName.equals(RouterConstants.stringType, true) -> {
                     funSpec.addStatement(
                         "   val %N = %N.intent.getStringExtra(\"${parameter.name}\")",
                         "stringElement" + index,
@@ -137,9 +137,25 @@ class ParameterProcessor : AbstractProcessor() {
                         "stringElement" + index
                     )
                 }
-                element.asType().toString().equals(canonicalName, true) -> {
-                    //any类型的
-                    val name = parameter.name
+                //路由形式的
+                name.startsWith("/") && name.lastIndexOf("/") != 0 -> {
+
+                    val mapJavaToKotlin =
+                        JavaToKotlinClassMap.INSTANCE.mapJavaToKotlin(FqName(clazzName))
+                            ?.asSingleFqName().toString()
+
+                    messager?.printMessage(
+                        Diagnostic.Kind.NOTE,
+                        "看看类型" + mapJavaToKotlin + "   ," + clazzName + "   " + element.simpleName
+                    )
+
+                    val className = try {
+                        ClassName.bestGuess(mapJavaToKotlin)
+                    } catch (e: Exception) {
+                        //没有说明不是基本类型
+                        ClassName.bestGuess(clazzName)
+                    }
+
                     if (name.startsWith("/") && name.lastIndexOf("/") != 0) {
                         //从路由里面拿
                         funSpec.addStatement(
@@ -151,7 +167,7 @@ class ParameterProcessor : AbstractProcessor() {
                                         "            %N.%N = %N.%N\n" +
                                         "        } else {\n" +
                                         "            %N as %T\n" +
-                                        "            %N.%N = %N.call()\n" +
+                                        "            %N.%N = %N.fromJson(%N.call().toString(), %T::class.java)\n" +
                                         "        }",
                                 "navigation" + index,
                                 "target",
@@ -160,15 +176,24 @@ class ParameterProcessor : AbstractProcessor() {
                                 element.simpleName,
                                 "navigation" + index,
                                 CallListener::class,
-                                "target", element.simpleName, "navigation" + index
+                                "target", element.simpleName, "gson",
+                                "navigation" + index, className
                             )
                     }
                 }
+
+
             }
 
         }
+
+        val propertySpec =
+            PropertySpec.builder("gson", Gson::class).initializer(CodeBlock.of("%T()", Gson::class))
+                .addModifiers(KModifier.PRIVATE)
+
         val typeSpec = TypeSpec.classBuilder(finaClassName)
             .addSuperinterface(ParameterLoadListener::class.java)
+            .addProperty(propertySpec.build())
             .addFunction(funSpec.build())
 
         try {
