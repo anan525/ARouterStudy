@@ -93,7 +93,6 @@ class ParameterProcessor : AbstractProcessor() {
 
         val bestGuess = ClassName.bestGuess("$packageName." + activityName)
 
-
         val funSpec = FunSpec.builder("parameterLoad")
             .addModifiers(KModifier.OVERRIDE)
             .addParameter(parameterSpec)
@@ -181,7 +180,6 @@ class ParameterProcessor : AbstractProcessor() {
                             )
                     }
                 }
-
 
             }
 
