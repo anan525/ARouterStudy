@@ -52,4 +52,5 @@ dependencies {
     kapt project(":ARouter")
     implementation project(":test")
     implementation project(":test2")
+    implementation("org.greenrobot:eventbus:3.3.1")
 }

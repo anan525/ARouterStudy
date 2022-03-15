@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.dndc.arouter.ARouter
 import com.dndc.arouter.Parameter
 import com.dndc.common.ARouterManager
+import org.greenrobot.eventbus.EventBus
 
 @ARouter("/app/TestActivity")
 class TestActivity : AppCompatActivity() {
@@ -21,5 +22,7 @@ class TestActivity : AppCompatActivity() {
                 .navigation(this)
         }
 
+
+        EventBus.getDefault().postSticky(this)
     }
 }

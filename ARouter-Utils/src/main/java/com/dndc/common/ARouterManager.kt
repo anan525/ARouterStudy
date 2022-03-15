@@ -11,7 +11,7 @@ import com.dndc.arouter.RouterConstants
 
 
 class ARouterManager private constructor() {
-    private val routerBeanLruCache: LruCache<String, RouterBean>
+    private val routerBeanLruCache: LruCache<String, RouterBean> = LruCache(163)
     private var routerBean: RouterBean? = null
     fun build(path: String): BundleManager {
         //检测path格式
@@ -59,14 +59,14 @@ class ARouterManager private constructor() {
 
     fun navigation(context: Context, bundle: Bundle?): Any? {
         if (routerBean != null) {
-            when (routerBean!!.type) {
+            return when (routerBean!!.type) {
                 RouterBean.TYPE.ACITIVITY -> {
                     val intent = Intent(context, routerBean!!.clazz).putExtras(bundle!!)
                     context.startActivity(intent)
-                    return null
+                    null
                 }
                 RouterBean.TYPE.CALL -> {
-                    return routerBean!!.clazz.newInstance()
+                    routerBean!!.clazz.newInstance()
                 }
             }
         }
@@ -86,7 +86,4 @@ class ARouterManager private constructor() {
         }
     }
 
-    init {
-        routerBeanLruCache = LruCache(163)
-    }
 }

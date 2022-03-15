@@ -108,34 +108,6 @@ class ParameterProcessor : AbstractProcessor() {
             var clazzName = element.asType().toString()
             val name = parameter.name
             when {
-                element.asType().kind.ordinal == TypeKind.INT.ordinal -> {
-                    funSpec.addStatement(
-                        "  %N.%N = %N.intent.getIntExtra(\"${parameter.name}\", %N.%N)",
-                        "target",
-                        element.simpleName,
-                        "target",
-                        "target",
-                        element.simpleName
-                    )
-                }
-                clazzName.equals(RouterConstants.stringType, true) -> {
-                    funSpec.addStatement(
-                        "   val %N = %N.intent.getStringExtra(\"${parameter.name}\")",
-                        "stringElement" + index,
-                        "target"
-                    )
-                    funSpec.addStatement(
-                        " %N.${element.simpleName} = if (%N.isNullOrEmpty()) {\n" +
-                                "            %N.${element.simpleName}\n" +
-                                "        } else {\n" +
-                                "            %N!!\n" +
-                                "        }",
-                        "target",
-                        "stringElement" + index,
-                        "target",
-                        "stringElement" + index
-                    )
-                }
                 //路由形式的
                 name.startsWith("/") && name.lastIndexOf("/") != 0 -> {
 
@@ -155,32 +127,59 @@ class ParameterProcessor : AbstractProcessor() {
                         ClassName.bestGuess(clazzName)
                     }
 
-                    if (name.startsWith("/") && name.lastIndexOf("/") != 0) {
-                        //从路由里面拿
-                        funSpec.addStatement(
-                            " val %N = %T.instance.build(\"${parameter.name}\").navigation(%N)",
-                            "navigation" + index, arouterManagerType, "target"
+                    //从路由里面拿
+                    funSpec.addStatement(
+                        " val %N = %T.instance.build(\"${parameter.name}\").navigation(%N)",
+                        "navigation" + index, arouterManagerType, "target"
+                    )
+                        .addStatement(
+                            "if (%N == null) {\n" +
+                                    "            %N.%N = %N.%N\n" +
+                                    "        } else {\n" +
+                                    "            %N as %T\n" +
+                                    "            %N.%N = %N.fromJson(%N.call().toString(), %T::class.java)\n" +
+                                    "        }",
+                            "navigation" + index,
+                            "target",
+                            element.simpleName,
+                            "target",
+                            element.simpleName,
+                            "navigation" + index,
+                            CallListener::class,
+                            "target", element.simpleName, "gson",
+                            "navigation" + index, className
                         )
-                            .addStatement(
-                                "if (%N == null) {\n" +
-                                        "            %N.%N = %N.%N\n" +
-                                        "        } else {\n" +
-                                        "            %N as %T\n" +
-                                        "            %N.%N = %N.fromJson(%N.call().toString(), %T::class.java)\n" +
-                                        "        }",
-                                "navigation" + index,
-                                "target",
-                                element.simpleName,
-                                "target",
-                                element.simpleName,
-                                "navigation" + index,
-                                CallListener::class,
-                                "target", element.simpleName, "gson",
-                                "navigation" + index, className
-                            )
-                    }
                 }
-
+                //注解的如果是int类型--数据传递值
+                element.asType().kind.ordinal == TypeKind.INT.ordinal -> {
+                    funSpec.addStatement(
+                        "  %N.%N = %N.intent.getIntExtra(\"${parameter.name}\", %N.%N)",
+                        "target",
+                        element.simpleName,
+                        "target",
+                        "target",
+                        element.simpleName
+                    )
+                }
+                //注解的如果是字符串类型---数据传递值
+                clazzName.equals(RouterConstants.stringType, true) -> {
+                    funSpec.addStatement(
+                        "   val %N = %N.intent.getStringExtra(\"${parameter.name}\")",
+                        "stringElement" + index,
+                        "target"
+                    )
+                    funSpec.addStatement(
+                        " %N.${element.simpleName} = if (%N.isNullOrEmpty()) {\n" +
+                                "            %N.${element.simpleName}\n" +
+                                "        } else {\n" +
+                                "            %N!!\n" +
+                                "        }",
+                        "target",
+                        "stringElement" + index,
+                        "target",
+                        "stringElement" + index
+                    )
+                }
             }
 
         }
